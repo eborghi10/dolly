@@ -121,6 +121,10 @@
       </collision>
     </link>
 
+    <link name='base_link'>
+      <pose>0.3 0 -0.075 0 0 0</pose>
+    </link>
+
     <link name='left_wheel'>
       <pose>0.3 0.3 -0.075 -1.5707 0 0</pose>
       <inertial>
@@ -264,6 +268,11 @@
       </visual>
     </link>
 
+    <joint name='base_link_joint' type='fixed'>
+      <parent>chassis</parent>
+      <child>base_link</child>
+    </joint>
+
     <joint name='left_wheel_joint' type='revolute'>
       <parent>chassis</parent>
       <child>left_wheel</child>
@@ -350,7 +359,7 @@
       <publish_odom_tf>true</publish_odom_tf>
 
       <odometry_frame>odom_demo</odometry_frame>
-      <robot_base_frame>chassis</robot_base_frame>
+      <robot_base_frame>base_link</robot_base_frame>
 
     </plugin>
 
@@ -360,7 +369,7 @@
           <namespace>/dolly</namespace>
           <argument>odom:=chassis/pose</argument>
         </ros>
-        <body_name>chassis</body_name>
+        <body_name>base_link</body_name>
         <frame_name>world</frame_name>
         <update_rate>10.0</update_rate>
         <xyz_offsets>0 0 0</xyz_offsets>
