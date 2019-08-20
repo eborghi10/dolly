@@ -354,5 +354,19 @@
 
     </plugin>
 
+    <!-- gazebo_ros_p3d for position groundtruth -->
+    <plugin name="p3d_controller" filename="libgazebo_ros_p3d.so">
+        <ros>
+          <namespace>/dolly</namespace>
+          <argument>odom:=chassis/pose</argument>
+        </ros>
+        <body_name>chassis</body_name>
+        <frame_name>world</frame_name>
+        <update_rate>10.0</update_rate>
+        <xyz_offsets>0 0 0</xyz_offsets>
+        <rpy_offsets>0 0 0</rpy_offsets>
+        <gaussian_noise>0</gaussian_noise>
+    </plugin>
+
   </model>
 </sdf>
