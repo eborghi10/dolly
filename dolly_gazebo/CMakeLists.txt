@@ -10,7 +10,7 @@ install(DIRECTORY
 )
 
 install(DIRECTORY
-  worlds
+  worlds rviz
   DESTINATION share/${PROJECT_NAME}/
 )
 

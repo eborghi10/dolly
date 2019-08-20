@@ -14,12 +14,35 @@
 
 """Launch Gazebo with a world that has Dolly, as well as the follow node."""
 
+from os import environ, path
+
 from launch import LaunchDescription
 import launch.actions
 import launch.substitutions
 import launch_ros.actions
 
+from ament_index_python.packages import get_package_share_directory
+
+def update_environment_variable(name, value):
+    print("Updating environment variable {}".format(name))
+    # Get environment variable
+    # Use empty if not found
+    env_var = environ.get(str(name), '')
+    # Append new value
+    environ[str(name)] = env_var + ':' + str(value)
+    print("> {}={}".format(str(name), env_var + ':' + str(value)))
+
 def generate_launch_description():
+
+    update_environment_variable(
+        'GAZEBO_RESOURCE_PATH',
+        '/colcon_ws/src/dolly/dolly_gazebo/worlds'
+    )
+    update_environment_variable(
+        'GAZEBO_MODEL_PATH',
+        '/colcon_ws/src/dolly/dolly_gazebo/models'
+    )
+
     gzserver_exe = launch.actions.ExecuteProcess(
         cmd=['gzserver', '--verbose', '-s', 'libgazebo_ros_init.so',
              launch.substitutions.LaunchConfiguration('world')],
@@ -38,6 +61,23 @@ def generate_launch_description():
             ('laser_scan', '/dolly/laser_scan')
         ]
     )
+    go_to_goal = launch_ros.actions.Node(
+        package='dolly_follow',
+        node_executable='dolly_go_to_goal',
+        output='screen',
+        remappings=[
+            ('cmd_vel', '/dolly/cmd_vel'),
+        ]
+    )
+
+    rviz_config_dir = path.join(get_package_share_directory(
+        'dolly_gazebo'), 'rviz', 'model.rviz')
+    rviz2 = launch_ros.actions.Node(
+        package='rviz2',
+        node_executable='rviz2',
+        node_name='rviz2',
+        arguments=['-d', rviz_config_dir],
+        output='screen')
 
     return LaunchDescription([
         launch.actions.DeclareLaunchArgument(
@@ -46,5 +86,7 @@ def generate_launch_description():
           description='Gazebo world file'),
         gzserver_exe,
         gzclient_exe,
-        follow
+        # follow,
+        go_to_goal,
+        rviz2,
     ])
