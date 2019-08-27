@@ -36,39 +36,15 @@ public:
   /// velocity commands.
   explicit GoToGoal() : Node("go_to_goal")
   {
-    cb_grp1_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
-    cb_grp2_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
-    cb_grp3_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
-
-    // Subscribe to goal pose messages
-    goal_pose_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
-        "move_base_simple/goal",
-        [this](const geometry_msgs::msg::PoseStamped::SharedPtr _msg)
-        {
-            this->goal_pose_ = _msg->pose;
-            this->initial_goal_ = true;
-            this->print_once_ = true;
-        },
-        rmw_qos_profile_sensor_data,
-        cb_grp1_
-    );
-    
-    // Subscribe to ground truth messages
-    gt_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        "dolly/chassis/pose", 
-        [this](const nav_msgs::msg::Odometry::SharedPtr _msg)
-        {
-            this->gt_msg_ = _msg->pose.pose;
-            this->initial_gt_ = true;
-        },
-        rmw_qos_profile_sensor_data, 
-        cb_grp2_
-    );
-
-    // Advertise velocity commands
-    cmd_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel");
-
-    timer_ = this->create_wall_timer(100ms, std::bind(&GoToGoal::OnTimer, this), cb_grp3_);
+    /*
+     * TODO:
+     * 
+     * 1. Create callback groups
+     * 2. Subscribe to move_base goal
+     * 3. Subscribe to ground truth pose
+     * 4. Advertise velocity publisher
+     * 5. Create a timer for the robot logic
+     */
   }
 
 private:
@@ -84,7 +60,9 @@ private:
     
     if (atGoal(gt_msg_, goal_pose_)) {
       // Stopping robot -- sending empty velocity message
-      cmd_pub_->publish(cmd_msg);
+      /*
+       * TODO: Stop the robot
+       */
       if (print_once_)
       {
         print_once_ = false;
@@ -122,7 +100,9 @@ private:
 
     adjustVelocities(cmd_msg);
 
-    cmd_pub_->publish(cmd_msg);
+    /*
+     * TODO: Publish velocity commands
+     */
   }
 
   double getGoalDistance(
@@ -198,24 +178,11 @@ private:
     }
   }
 
-  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_pose_sub_;
-  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr gt_sub_;
-
-  /// \brief Velocity command publisher
-  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_pub_;
-
-  /// \brief 
+  /// \brief Use this for the move_base goal
   geometry_msgs::msg::Pose goal_pose_;
 
-  /// \brief
+  /// \brief Use this for the ground truth pose
   geometry_msgs::msg::Pose gt_msg_;
-
-  /// \brief
-  rclcpp::TimerBase::SharedPtr timer_;
-
-  rclcpp::callback_group::CallbackGroup::SharedPtr cb_grp1_;
-  rclcpp::callback_group::CallbackGroup::SharedPtr cb_grp2_;
-  rclcpp::callback_group::CallbackGroup::SharedPtr cb_grp3_;
 
   const double max_lin_vel_ = 0.3;
   const double max_ang_vel_ = 0.5;
@@ -240,15 +207,14 @@ int main(int argc, char * argv[])
   // Forward command line arguments to ROS
   rclcpp::init(argc, argv);
 
-  rclcpp::executors::MultiThreadedExecutor executor;
-
-  // Create a node
-  auto node = std::make_shared<GoToGoal>();
-
-  executor.add_node(node);
-
-  // Run node until it's exited
-  executor.spin();
+  /*
+   * TODO:
+   * 
+   * 1. Create a MultiThreadedExecutor
+   * 2. Create a GoToGoal ROS 2 node
+   * 3. Add node to executor and call spin
+   * 
+   */
 
   // Clean up
   rclcpp::shutdown();
